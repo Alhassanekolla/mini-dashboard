@@ -1,0 +1,133 @@
+<div class="container mt-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="display-5 fw-bold">🛒 Mon Panier</h1>
+        <a routerLink="/products" class="btn btn-outline-primary">
+          ← Retour au catalogue
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panier vide -->
+  <div *ngIf="(itemCount$ | async) === 0" class="text-center py-5">
+    <div class="card shadow-sm">
+      <div class="card-body py-5">
+        <h3 class="text-muted">Votre panier est vide</h3>
+        <p class="text-muted">Ajoutez des produits depuis le catalogue !</p>
+        <a routerLink="/products" class="btn btn-primary btn-lg mt-3">
+          🛍️ Découvrir les produits
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panier avec articles -->
+  <div *ngIf="(itemCount$ | async)!== 0" class="row">
+    <!-- Liste des articles -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Articles ({{ itemCount$ | async }})</h5>
+          <button class="btn btn-outline-danger btn-sm" (click)="clearCart()">
+            🗑️ Vider le panier
+          </button>
+        </div>
+
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            <div *ngFor="let item of cartItems$ | async" class="list-group-item">
+              <div class="row align-items-center">
+                <!-- Image -->
+                <div class="col-2">
+                  <img [src]="item.image" [alt]="item.name" class="img-fluid rounded" style="height: 60px; object-fit: cover;">
+                </div>
+
+                <!-- Nom et Prix -->
+                <div class="col-4">
+                  <h6 class="mb-1">{{ item.name }}</h6>
+                  <small class="text-muted">{{ item.price }} € / unité</small>
+                </div>
+
+                <!-- Quantité -->
+                <div class="col-3">
+                  <div class="d-flex align-items-center">
+                    <button
+                      class="btn btn-outline-secondary btn-sm"
+                      (click)="decrementQuantity(item)"
+                      [disabled]="item.quantity <= 1">
+                      -
+                    </button>
+
+                    <span class="mx-3 fw-bold">{{ item.quantity }}</span>
+
+                    <button
+                      class="btn btn-outline-secondary btn-sm"
+                      (click)="incrementQuantity(item)">
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Sous-total -->
+                <div class="col-2 text-center">
+                  <strong class="text-primary">{{ item.price * item.quantity }} €</strong>
+                </div>
+
+                <!-- Supprimer -->
+                <div class="col-1 text-end">
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="removeItem(item.productId)">
+                    ×
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Résumé du panier -->
+    <div class="col-lg-4 mt-4 mt-lg-0">
+      <div class="card shadow-sm sticky-top" style="top: 20px;">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">📋 Résumé</h5>
+        </div>
+
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Sous-total:</span>
+            <span>{{ total$ | async }} €</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Frais de livraison:</span>
+            <span class="text-success">Gratuits</span>
+          </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between mb-3">
+            <strong>Total:</strong>
+            <strong class="h5 text-primary">{{ total$ | async }} €</strong>
+          </div>
+
+          <!-- Boutons d'action -->
+          <div class="d-grid gap-2">
+            <button class="btn btn-success btn-lg">
+              💳 Commander maintenant
+            </button>
+
+            <button class="btn btn-outline-primary">
+              🔄 Synchroniser
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

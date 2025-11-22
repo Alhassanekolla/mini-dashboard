@@ -1,0 +1,11 @@
+{
+
+
+
+    "products": [
+      {"id":1,"name":"Ordinateur","price":25000,"category":"Tech","image":"https://share.google/images/cwPLqVUho32vVVSjC"},
+      {"id":2,"name":"Téléphone","price":100000,"category":"Tech","image":"https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.lemondeinformatique.fr%2Factualites%2Flire-purism-veut-lancer-un-pc-portable-100-libre-59677.html&psig=AOvVaw3FFalDl_iHzw3ryx1GlXGs&ust=1763907666123000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMimlLb6hZEDFQAAAAAdAAAAABAE"},
+      {"id":3,"name":"Chaussure","price":25000,"category":"Fashion","image":"https://via.placeholder.com/150"}
+    ],
+    "orders":[]
+}
