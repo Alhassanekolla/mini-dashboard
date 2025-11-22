@@ -1,31 +1,60 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, map, Observable, Subject, tap } from 'rxjs';
-import { Product } from '../../../shared/models/product.model';
 import { HttpClient } from '@angular/common/http';
-import { ApiService } from '../../../core/services/api.service';
-
+import { BehaviorSubject, Observable, combineLatest, from } from 'rxjs';
+import { map, tap, switchMap, catchError } from 'rxjs/operators';
+import { Product } from '../../../shared/models/product.model';
+import { OfflineService } from '../../../core/services/offline.service';
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-
-
-
-  private productsSubject = new BehaviorSubject<Product[]>([])
+  private productsSubject = new BehaviorSubject<Product[]>([]);
   public products$ = this.productsSubject.asObservable();
 
-
-  private searchFilter = new BehaviorSubject<string>('')
+  // Filtres réactifs
+  private searchFilter = new BehaviorSubject<string>('');
   private categoryFilter = new BehaviorSubject<string>('all');
-  private sortBy = new BehaviorSubject<('price-asc' | 'price-desc')>('price-asc')
+  private sortBy = new BehaviorSubject<'price-asc' | 'price-desc'>('price-asc');
 
-  constructor(private apiService :ApiService){}
+  constructor(
+    private http: HttpClient,
+    private offlineService: OfflineService
+  ) {}
 
-  loadProducts():Observable<Product[]>{
-    return this.apiService.getProducts().pipe(
-      tap(products =>this.productsSubject.next(products))
-    )
+  // 🔥 CHARGEMENT INTELLIGENT : Online → API, Offline → Local
+  loadProducts(): Observable<Product[]> {
+    if (this.offlineService.isOnline()) {
+      // Mode ONLINE : API + sauvegarde locale
+      return this.http.get<Product[]>('http://localhost:3000/products').pipe(
+        tap(products => {
+          this.productsSubject.next(products);
+          this.offlineService.saveProducts(products); // Sauvegarde locale
+        }),
+        catchError(error => {
+          console.error('API error, loading from local...', error);
+          return this.loadFromLocal(); // Fallback local
+        })
+      );
+    } else {
+      // Mode OFFLINE : Local seulement
+      return this.loadFromLocal();
+    }
   }
+
+  // Chargement depuis le stockage local
+  private loadFromLocal(): Observable<Product[]> {
+    return from(this.offlineService.getProducts()).pipe(
+      tap(products => {
+        if (products.length > 0) {
+          this.productsSubject.next(products);
+        } else {
+          console.warn('Aucun produit en cache local');
+        }
+      })
+    );
+  }
+
+  // Le reste du code reste identique...
   getFilteredProducts(): Observable<Product[]> {
     return combineLatest([
       this.products$,
@@ -34,7 +63,7 @@ export class ProductService {
       this.sortBy
     ]).pipe(
       map(([products, search, category, sort]) => {
-        let filtered: Product[] = products;
+        let filtered = products;
 
         // Filtre recherche
         if (search) {
@@ -60,7 +89,7 @@ export class ProductService {
     );
   }
 
-  // Setters pour les filtres
+  // Setters pour les filtres (inchangés)
   setSearchFilter(search: string): void {
     this.searchFilter.next(search);
   }
@@ -73,7 +102,6 @@ export class ProductService {
     this.sortBy.next(sort);
   }
 
-  // Get toutes les catégories uniques
   getCategories(): Observable<string[]> {
     return this.products$.pipe(
       map(products => [...new Set(products.map(p => p.category))])

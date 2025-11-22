@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { CartItem } from '../../../shared/models/cart-item.model';
+import { OfflineService } from '../../../core/services/offline.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,30 @@ export class CartService {
   public itemCount$ = this.cartItems$.pipe(
     map(items => items.reduce((sum, item) => sum + item.quantity, 0))
   );
+
+  constructor(private offlineService: OfflineService) {
+    this.loadCartFromLocal();
+    this.setupAutoSave();
+  }
+
+  // 🔥 CHARGEMENT INITIAL DU PANIER
+  private async loadCartFromLocal(): Promise<void> {
+    try {
+      const localCart = await this.offlineService.getCart();
+      this.cartItems.next(localCart);
+    } catch (error) {
+      console.error('Error loading cart from local:', error);
+    }
+  }
+
+  // 🔥 SAUVEGARDE AUTOMATIQUE À CHAQUE MODIFICATION
+  private setupAutoSave(): void {
+    this.cartItems$.pipe(
+      tap(items => {
+        this.offlineService.saveCart(items);
+      })
+    ).subscribe();
+  }
 
   // 🔥 FONCTION D'OPTIMISATION ALGORITHMIQUE
   private optimizeCartItems(items: CartItem[]): CartItem[] {

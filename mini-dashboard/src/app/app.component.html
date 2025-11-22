@@ -5,6 +5,13 @@
       🛍️ Mini Dashboard
     </a>
 
+    <!-- Indicateur Online/Offline -->
+    <div class="navbar-text me-3">
+      <span class="badge" [ngClass]="isOnline ? 'bg-success' : 'bg-warning'">
+        {{ isOnline ? '🟢 En ligne' : '🟡 Hors ligne' }}
+      </span>
+    </div>
+
     <div class="navbar-nav ms-auto">
       <a class="nav-link text-white" routerLink="/products">
         📦 Produits
