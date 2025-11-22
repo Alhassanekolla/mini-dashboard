@@ -25,7 +25,7 @@
   </div>
 
   <!-- Panier avec articles -->
-  <div *ngIf="(itemCount$ | async)!== 0" class="row">
+  <div *ngIf="(itemCount$ | async)! > 0" class="row">
     <!-- Liste des articles -->
     <div class="col-lg-8">
       <div class="card shadow-sm">
@@ -116,14 +116,60 @@
             <strong class="h5 text-primary">{{ total$ | async }} €</strong>
           </div>
 
+          <!-- 🔥 STATUT SYNCHRONISATION -->
+          <div *ngIf="syncState$ | async as state"
+               class="alert"
+               [ngClass]="{
+                 'alert-info': state.status === 'syncing',
+                 'alert-success': state.status === 'success',
+                 'alert-danger': state.status === 'error',
+                 'alert-secondary': state.status === 'idle'
+               }">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <strong>{{ state.message }}</strong>
+                <div *ngIf="state.lastSync" class="small">
+                  Dernière synchro: {{ state.lastSync | date:'short' }}
+                </div>
+              </div>
+              <button *ngIf="state.status === 'error'"
+                      class="btn-close"
+                      (click)="resetSyncState()"></button>
+            </div>
+
+            <!-- Spinner pendant la synchro -->
+            <div *ngIf="state.status === 'syncing'" class="mt-2">
+              <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Chargement...</span>
+              </div>
+              <small class="ms-2">Ne pas fermer la page...</small>
+            </div>
+          </div>
+
           <!-- Boutons d'action -->
           <div class="d-grid gap-2">
-            <button class="btn btn-success btn-lg">
+            <button class="btn btn-success btn-lg" [disabled]="(itemCount$ | async) === 0">
               💳 Commander maintenant
             </button>
 
-            <button class="btn btn-outline-primary">
-              🔄 Synchroniser
+            <!-- 🔥 BOUTON SYNCHRONISATION -->
+            <button
+              class="btn"
+              [ngClass]="{
+                'btn-primary': (syncState$ | async)?.status !== 'syncing',
+                'btn-outline-primary': (syncState$ | async)?.status === 'syncing'
+              }"
+              (click)="syncCart()"
+              [disabled]="(syncState$ | async)?.status === 'syncing' || (itemCount$ | async) === 0">
+
+              <span *ngIf="(syncState$ | async)?.status === 'syncing'">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Synchronisation...
+              </span>
+
+              <span *ngIf="(syncState$ | async)?.status !== 'syncing'">
+                🔄 Synchroniser
+              </span>
             </button>
           </div>
         </div>
