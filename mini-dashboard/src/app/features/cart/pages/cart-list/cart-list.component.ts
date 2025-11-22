@@ -30,7 +30,12 @@ export class CartListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.syncService.autoSyncWhenOnline();
+      this.syncService.autoSyncWhenOnline();
+
+    // Écouter les changements d'état pour debug
+    this.syncState$.subscribe(state => {
+      console.log('Sync State Changed:', state);
+    });
   }
 
   incrementQuantity(item: CartItem): void {
@@ -49,18 +54,29 @@ export class CartListComponent implements OnInit {
     this.cartService.clearCart();
   }
 
-  // 🔥 SYNCHRONISATION MANUELLE
-  syncCart(): void {
-    this.syncService.syncData().subscribe({
-      error: (error) => {
-        // Gestion d'erreur déjà faite dans le service
-        console.error('Sync error in component:', error);
-      }
-    });
-  }
+
 
   // Reset du state de sync
   resetSyncState(): void {
     this.syncService.resetState();
   }
+
+
+  // 🔥 SYNCHRONISATION MANUELLE AMÉLIORÉE
+  syncCart(): void {
+    if (!this.syncService.isCurrentlySyncing()) {
+      this.syncService.syncData().subscribe({
+        next: (response) => {
+          console.log('Sync successful:', response);
+        },
+        error: (error) => {
+          console.error('Sync failed:', error);
+          // L'erreur est déjà gérée dans le service
+        }
+      });
+    } else {
+      console.log('Sync already in progress...');
+    }
+  }
+
 }

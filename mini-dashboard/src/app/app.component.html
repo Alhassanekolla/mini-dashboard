@@ -1,31 +1,80 @@
-<!-- Navigation Header -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+<!-- Navigation Header améliorée avec Bootstrap -->
+<nav 
+     class="navbar navbar-expand-lg fixed-top bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-300"
+     style="background-color: rgba(255, 255, 255, 0.9) !important;">
+
   <div class="container">
-    <a class="navbar-brand fw-bold" routerLink="/">
-      🛍️ Mini Dashboard
+    <!-- Logo -->
+    <a class="navbar-brand fw-bold text-decoration-none d-flex align-items-center" routerLink="/">
+      <span class="brand-gradient">🛍️ Mini Dashboard</span>
     </a>
 
-    <!-- Indicateur Online/Offline -->
-    <div class="navbar-text me-3">
-      <span class="badge" [ngClass]="isOnline ? 'bg-success' : 'bg-warning'">
-        {{ isOnline ? '🟢 En ligne' : '🟡 Hors ligne' }}
-      </span>
+    <!-- Indicateur Online/Offline amélioré -->
+    <div class="navbar-status d-none d-lg-flex me-4">
+      <div class="status-indicator" [ngClass]="isOnline ? 'online' : 'offline'">
+        <span class="status-dot"></span>
+        <span class="status-text small fw-medium">
+          {{ isOnline ? 'En ligne' : 'Hors ligne' }}
+        </span>
+      </div>
     </div>
 
-    <div class="navbar-nav ms-auto">
-      <a class="nav-link text-white" routerLink="/products">
-        📦 Produits
-      </a>
-      <a class="nav-link text-white position-relative" routerLink="/cart">
-        🛒 Panier
-        <span *ngIf="(cartService.itemCount$ | async)! > 0"
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-          {{ cartService.itemCount$ | async }}
-        </span>
-      </a>
+    <!-- Bouton toggle mobile -->
+    <button class="navbar-toggler border-0"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarContent"
+            aria-controls="navbarContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Contenu de la navbar -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Navigation principale -->
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link nav-item-custom position-relative"
+             routerLink="/products"
+             routerLinkActive="active">
+            <i class="fas fa-box me-2"></i>
+            📦 Produits
+          </a>
+        </li>
+      </ul>
+
+      <!-- Actions utilisateur -->
+      <div class="navbar-actions d-flex align-items-center">
+        <!-- Indicateur statut mobile -->
+        <div class="navbar-status d-lg-none me-3">
+          <div class="status-indicator" [ngClass]="isOnline ? 'online' : 'offline'">
+            <span class="status-dot"></span>
+            <span class="status-text small fw-medium">
+              {{ isOnline ? 'En ligne' : 'Hors ligne' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Panier avec badge -->
+        <a class="nav-link nav-item-custom position-relative"
+           routerLink="/cart"
+           routerLinkActive="active">
+          <i class="fas fa-shopping-cart me-2"></i>
+          🛒 Panier
+          <span *ngIf="(cartService.itemCount$ | async)! > 0"
+                class="cart-badge position-absolute top-0 start-100 translate-middle">
+            {{ cartService.itemCount$ | async }}
+            <span class="pulse-animation"></span>
+          </span>
+        </a>
+      </div>
     </div>
   </div>
 </nav>
+
+<!-- Espace pour la navbar fixe -->
+<div class="navbar-spacer"></div>
 
 <!-- Router Outlet -->
 <router-outlet></router-outlet>

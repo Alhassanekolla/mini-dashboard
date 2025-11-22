@@ -16,6 +16,7 @@ import { CartService } from '../../../cart/services/cart.service';
 export class ProductListComponent implements OnInit {
   products$: Observable<Product[]>;
   categories$: Observable<string[]>;
+  displayedItemsText$: Observable<string>;
 
   searchTerm: string = '';
   selectedCategory: string = 'all';
@@ -31,6 +32,8 @@ export class ProductListComponent implements OnInit {
   ) {
     this.products$ = this.productService.getFilteredProducts();
     this.categories$ = this.productService.getCategories();
+
+   
   }
 
   ngOnInit(): void {
@@ -72,11 +75,29 @@ export class ProductListComponent implements OnInit {
     );
   }
 
+  // Réinitialisation des filtres
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.selectedCategory = 'all';
+    this.selectedSort = 'price-asc';
+    this.currentPage = 1;
+    this.onSearchChange();
+    this.onCategoryChange();
+    this.onSortChange();
+  }
+
   nextPage(): void {
     this.currentPage++;
   }
 
   prevPage(): void {
     if (this.currentPage > 1) this.currentPage--;
+  }
+
+
+
+  handleImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOGY4Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPsKpSW1hZ2Ugbm9uIGRpc3BvbmlibGU8L3RleHQ+PC9zdmc+';
   }
 }

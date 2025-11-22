@@ -1,64 +1,117 @@
-
-<div class="container mt-4">
-  <!-- Header -->
-  <div class="row mb-4">
+<div class="container-fluid py-4 product-list-container">
+  <!-- Header avec style moderne -->
+  <div class="row mb-5">
     <div class="col-12">
-      <h1 class="display-5 fw-bold">📦 Catalogue Produits</h1>
+      <div class="page-header text-center">
+        <h1 class="display-6 fw-bold text-gradient mb-3">📦 Catalogue Produits</h1>
+        <p class="text-muted lead">Découvrez notre sélection exclusive de produits</p>
+      </div>
     </div>
   </div>
 
-  <!-- Filtres -->
-  <div class="row mb-4">
-    <div class="col-md-4">
-      <input
-        type="text"
-        class="form-control"
-        placeholder="🔍 Rechercher un produit..."
-        [(ngModel)]="searchTerm"
-        (input)="onSearchChange()">
-    </div>
+  <!-- Filtres améliorés -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="filter-card card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="row g-3 align-items-end">
+            <div class="col-lg-4 col-md-6">
+              <label class="form-label fw-semibold text-primary mb-2">
+                <i class="fas fa-search me-2"></i>Rechercher
+              </label>
+              <div class="search-input-group">
+                <input
+                  type="text"
+                  class="form-control search-input"
+                  placeholder="Nom du produit, description..."
+                  [(ngModel)]="searchTerm"
+                  (input)="onSearchChange()">
+                <i class="fas fa-search input-icon"></i>
+              </div>
+            </div>
 
-    <div class="col-md-3">
-      <select
-        class="form-select"
-        [(ngModel)]="selectedCategory"
-        (change)="onCategoryChange()">
-        <option value="all">Toutes les catégories</option>
-        <option *ngFor="let category of categories$ | async" [value]="category">
-          {{ category }}
-        </option>
-      </select>
-    </div>
+            <div class="col-lg-3 col-md-6">
+              <label class="form-label fw-semibold text-primary mb-2">
+                <i class="fas fa-tags me-2"></i>Catégorie
+              </label>
+              <select
+                class="form-select filter-select"
+                [(ngModel)]="selectedCategory"
+                (change)="onCategoryChange()">
+                <option value="all">🎯 Toutes les catégories</option>
+                <option *ngFor="let category of categories$ | async" [value]="category">
+                   {{ category }}
+                </option>
+              </select>
+            </div>
 
-    <div class="col-md-3">
-      <select
-        class="form-select"
-        [(ngModel)]="selectedSort"
-        (change)="onSortChange()">
-        <option value="price-asc">Prix croissant</option>
-        <option value="price-desc">Prix décroissant</option>
-      </select>
+            <div class="col-lg-3 col-md-6">
+              <label class="form-label fw-semibold text-primary mb-2">
+                <i class="fas fa-sort me-2"></i>Trier par
+              </label>
+              <select
+                class="form-select filter-select"
+                [(ngModel)]="selectedSort"
+                (change)="onSortChange()">
+                <option value="price-asc">📈 Prix croissant</option>
+                <option value="price-desc">📉 Prix décroissant</option>
+              </select>
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+              <div class="results-count text-center">
+                <span class="badge bg-primary-subtle text-primary fs-6 p-3 w-100">
+                  <strong>{{ (products$ | async)?.length || 0 }}</strong>
+                  <small class="d-block">produits</small>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Grid Produits -->
-  <div class="row">
-    <div class="col-md-4 mb-4" *ngFor="let product of paginatedProducts$ | async">
-      <div class="card h-100 shadow-sm">
-        <img [src]="product.image" class="card-img-top" [alt]="product.name" style="height: 200px; object-fit: cover;">
+  <!-- Grid Produits améliorée -->
+  <div class="row g-4">
+   <div class="col-xl-4 col-lg-4 col-md-6 mb-4" *ngFor="let product of paginatedProducts$ | async">
+      <div class="product-card card h-100 border-0 shadow-hover">
+        <div class="product-image-container position-relative">
+          <img
+            [src]="product.image"
+            class="card-img-top product-image"
+            [alt]="product.name">
+          <div class="product-badge position-absolute top-0 end-0 m-3">
+            <span class="badge bg-success bg-opacity-90 text-white fs-3">
+              {{ product.price }} FG
+            </span>
+          </div>
+          <div class="category-badge position-absolute top-0 start-0 m-3">
+            <span class="badge bg-dark bg-opacity-75 text-white">
+               {{ product.category }}
+            </span>
+          </div>
+        </div>
 
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">{{ product.name }}</h5>
-          <p class="text-muted">{{ product.category }}</p>
-         
+        <div class="card-body d-flex flex-column p-4">
+          <h5 class="card-title product-title fw-bold text-dark mb-2">
+            {{ product.name }}
+          </h5>
+          <p class="card-text text-muted small flex-grow-1">
+            {{ product.description || 'Produit de qualité supérieure' }}
+          </p>
 
-          <div class="mt-auto">
+          <div class="product-actions mt-auto pt-3">
             <div class="d-flex justify-content-between align-items-center">
-              <span class="h5 text-primary mb-0">{{ product.price }} €</span>
+              <div class="price-section">
+                <span class="h4 text-primary fw-bold mb-0">{{ product.price }} FG</span>
+                <small class="text-muted d-block">TTC</small>
+              </div>
               <button
-                class="btn btn-success btn-sm"
+                class="btn btn-primary btn-add-cart"
                 (click)="addToCart(product)">
-                🛒 Ajouter
+                <i class="fas fa-cart-plus me-2"></i>
+                Ajouter
               </button>
             </div>
           </div>
@@ -67,28 +120,60 @@
     </div>
   </div>
 
-  <!-- Pagination -->
-  <div class="row mt-4">
-    <div class="col-12 d-flex justify-content-between">
-      <button
-        class="btn btn-outline-primary"
-        (click)="prevPage()"
-        [disabled]="currentPage === 1">
-        ← Précédent
-      </button>
+  <!-- Pagination améliorée -->
+  <div class="row mt-5" *ngIf="(products$ | async)?.length > 0">
+    <div class="col-12">
+      <nav aria-label="Navigation des produits">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button
+              class="page-link pagination-btn"
+              (click)="prevPage()"
+              [disabled]="currentPage === 1">
+              <i class="fas fa-chevron-left me-2"></i>
+              Précédent
+            </button>
+          </li>
 
-      <span class="align-self-center">Page {{ currentPage }}</span>
+          <li class="page-item active">
+            <span class="page-link pagination-info">
+              Page {{ currentPage }}
+              <small class="d-block text-muted">
+                {{ displayedItemsText$ | async }}
+              </small>
+          </span>
+          </li>
 
-      <button
-        class="btn btn-outline-primary"
-        (click)="nextPage()">
-        Suivant →
-      </button>
+          <li class="page-item">
+            <button
+              class="page-link pagination-btn"
+              (click)="nextPage()">
+              Suivant
+              <i class="fas fa-chevron-right ms-2"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 
-  <!-- Message si aucun produit -->
-  <div *ngIf="(products$ | async)?.length === 0" class="text-center mt-5">
-    <p class="text-muted">Aucun produit trouvé avec ces critères.</p>
+  <!-- État vide amélioré -->
+  <div *ngIf="(products$ | async)?.length === 0" class="row mt-5">
+    <div class="col-12">
+      <div class="empty-state text-center py-5">
+        <div class="empty-icon mb-4">
+          <i class="fas fa-search fa-4x text-muted opacity-25"></i>
+        </div>
+        <h4 class="text-muted mb-3">Aucun produit trouvé</h4>
+        <p class="text-muted mb-4">
+          Aucun produit ne correspond à vos critères de recherche.<br>
+          Essayez de modifier vos filtres ou votre terme de recherche.
+        </p>
+        <button class="btn btn-outline-primary" (click)="resetFilters()">
+          <i class="fas fa-refresh me-2"></i>
+          Réinitialiser les filtres
+        </button>
+      </div>
+    </div>
   </div>
 </div>
